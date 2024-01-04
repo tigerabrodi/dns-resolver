@@ -130,3 +130,45 @@ A datagram is a small packet of information sent over a network without confirma
 - DNS queries are usually small.
 - UDP is connectionless, so it doesn't require the overhead of end-to-end connection.
 - If a response is not received within a timeframe, the client can retransmit the request.
+
+## DNS Message Format
+
+DNS messages are used for querying DNS servers to translate domain names (like `www.example.com`) into IP addresses (like `192.0.2.1`) and vice versa. A DNS message has several components:
+
+### 1. Header
+
+- **Identification:** A unique ID for the DNS request. It's like a tracking number for your query.
+- **Flags:** These indicate the type of query, whether it's a standard query, a response, or an error message. They also include other settings.
+- **Question Count:** The number of questions in the DNS request.
+- **Answer Count:** The number of answers in the DNS response.
+- **Authority Count:** The number of authority records (provides information about DNS servers authoritative for a zone).
+- **Additional Count:** The number of additional records.
+
+### 2. Question Section
+
+- **Name:** The domain name you're querying about, like `www.example.com`.
+- **Type:** The type of query (e.g., A for IP address, MX for mail exchange server).
+- **Class:** This is usually IN (Internet), indicating it's an Internet query.
+
+### 3. Answer Section
+
+- **Name:** The domain name the answer is referring to.
+- **Type:** The type of the answer record (e.g., A, MX).
+- **Class:** Similar to the question section, usually IN.
+- **TTL (Time to Live):** How long the answer can be cached before a new request should be made.
+- **Data Length:** The length of the answer data.
+- **Data:** The actual data, like the IP address for the domain.
+
+### 4. Authority Section
+
+- Contains authoritative name server records. It tells you which DNS server has the authoritative (final) answer to your query.
+
+### 5. Additional Section
+
+- Contains additional information, like alternative servers or services related to the query.
+
+### How Does It Work?
+
+1. **You ask:** "What's the IP address for `www.example.com`?"
+2. **DNS Query is Sent:** Your computer sends a DNS query with this question.
+3. **DNS Response:** A DNS server responds with an answer, like "The IP address for `www.example.com` is 192.0.2.1".
