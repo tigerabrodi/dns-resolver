@@ -1,4 +1,5 @@
-import { encodeDomainName, generateIdentifier } from './utils'
+import { encodeDomainName } from './encodeDomainName'
+import { generateIdentifier } from './generateIdentifier'
 
 console.log('16 bit buffer', generateIdentifier())
 
