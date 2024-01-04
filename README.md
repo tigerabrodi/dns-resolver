@@ -227,3 +227,9 @@ A "single byte" means a unit of digital information composed of 8 bits.
 - `03` - The length of the third label "com" (3 characters).
 - `63 6f 6d` - The ASCII values for 'c', 'o', 'm'.
 - `00` - A null byte indicating the end of the domain name.
+
+## Hexadecimal
+
+"Hexadecimal" or "hex" is a base-16 number system. Used as a human-friendly way of representing binary data. In hex, each digit can represent 16 different values (0-9 and A-F), where 'A' stands for 10, 'B' for 11, up to 'F' which stands for 15.
+
+In the context of binary data, two hexadecimal digits can represent one byte (8 bits). For example, the byte 10101010 in binary would be AA in hexadecimal.
