@@ -172,3 +172,39 @@ DNS messages are used for querying DNS servers to translate domain names (like `
 1. **You ask:** "What's the IP address for `www.example.com`?"
 2. **DNS Query is Sent:** Your computer sends a DNS query with this question.
 3. **DNS Response:** A DNS server responds with an answer, like "The IP address for `www.example.com` is 192.0.2.1".
+
+## The "Recursion Desired" Flag
+
+In the DNS header, the "Recursion Desired" flag, when set to 1, tells the DNS server that it should perform a recursive query if it doesn't have the answer. A recursive query means the DNS server will query other servers on your behalf until it finds the answer, rather than just referring you to another server. Setting this flag is common for most client-side DNS requests, as it simplifies the client's job.
+
+## Big Endian
+
+"Endian" refers to the order in which bytes are arranged and interpreted in computer memory. It's about which end (big or little) of a data word is stored in the lowest memory address.
+
+Think of big endian as writing a date in the format Year-Month-Day. No matter where you start reading (from the left), you get the most significant part first (the year).
+
+The "lower address" in memory is like the beginning of a line. In big endian, you start with the most significant part of your data at this beginning.
+
+**Big Endian:** The most significant byte (the "big end") of the data is placed at the byte with the lowest address. For example, for the number 0x1234, 0x12 is stored first.
+
+**Why Big Endian for DNS:** DNS protocol, as defined in RFC 1035, specifies the use of big endian (also known as network byte order) for transmitting numbers. This is important for interoperability, ensuring that all systems talking DNS protocol interpret multi-byte numbers in the same way, regardless of their native byte order.
+
+## Why Buffer.from()?
+
+Using `Buffer.from` is crucial in the `encodeDomainName` function for accurately representing the length of each domain label as a byte, rather than a simple number.
+
+- **Byte Representation:** `Buffer.from([part.length])` creates a buffer containing exactly one byte representing the length of the label. This is a binary representation, not just a numeric value.
+- **DNS Protocol Requirement:** The DNS protocol requires the length of each label to be in the binary format, as part of the query message. Simply using `part.length` would insert a numeric value, which would not conform to the protocol's requirements.
+- **Examples of What Could Go Wrong:**
+  - If you use `part.length` directly, it would be treated as a character in the string, which could lead to incorrect domain name encoding. For example, a label length of 3 would be added as the character '3', not as the binary value 0x03.
+  - This misrepresentation would lead the DNS server to interpret the query incorrectly, potentially failing to resolve the domain name or returning an erroneous response.
+
+## Buffer
+
+## Single Byte
+
+A "single byte" means a unit of digital information composed of 8 bits.
+
+- The length of each domain label (like 'www' or 'google') is converted into a binary format that occupies exactly 8 bits.
+- For instance, if a label is 'www', its length is 3. The binary representation of 3 is `00000011`, which is a single byte.
+- This byte is used in the DNS query to tell the server how many characters the following label has.
