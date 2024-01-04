@@ -1,5 +1,52 @@
+import dgram from 'node:dgram'
+
 import { createDNSQuery } from './createDNSQuery'
 
-// Usage: Creating a DNS query for 'www.youtube.com'
-const dnsQuery = createDNSQuery('www.youtube.com')
-console.log('DNS Query:', dnsQuery)
+// Create a UDP client
+const client = dgram.createSocket('udp4')
+
+const YOUTUBE_DOMAIN = 'www.youtube.com'
+const dnsQuery = createDNSQuery(YOUTUBE_DOMAIN)
+
+const GOOGLE_PUBLIC_DNS_SERVER = '8.8.8.8'
+const GOOGLE_DNS_PORT = 53
+
+// Send the DNS query
+client.send(dnsQuery, GOOGLE_DNS_PORT, GOOGLE_PUBLIC_DNS_SERVER, (error) => {
+  if (error) {
+    client.close()
+    throw error
+  }
+  console.log(
+    `DNS Query sent to ${GOOGLE_PUBLIC_DNS_SERVER}:${GOOGLE_DNS_PORT}`
+  )
+})
+
+// Handle the response
+client.on('message', (msg, info) => {
+  console.log('Received response from DNS server:\n')
+  console.log('Message:', msg.toString('hex')) // Hexadecimal representation of the message, more human friendly than binary
+  console.log('Info:', info)
+  console.log(
+    'Received %d bytes from %s:%d\n',
+    msg.length,
+    info.address,
+    info.port
+  )
+
+  // TODO: Parse the response
+
+  client.close()
+})
+
+// TODO: Handle errors
+client.on('error', (err) => {
+  console.log(`Client error: ${err.message}`)
+  client.close()
+})
+
+// TODO: handle timeout if the server doesn't respond
+client.on('timeout', () => {
+  console.log('Request timed out')
+  client.close()
+})
