@@ -201,6 +201,15 @@ Using `Buffer.from` is crucial in the `encodeDomainName` function for accurately
 
 ## Buffer
 
+A Buffer in Node.js is a simple way to handle raw binary data. Think of it as a sequence of bytes, much like an array, but with a fixed size and specifically designed for binary data.
+
+### What is a Buffer?
+
+- **Fixed-size Chunk of Memory:** A Buffer is essentially a block of memory outside the V8 JavaScript engine's heap. This memory block can store a fixed amount of data in a binary format.
+- **Array of Bytes:** You can think of a Buffer as an array where each element is a byte (8 bits). Unlike JavaScript arrays, which can store different types of elements, a Buffer is dedicated to bytes only.
+- **Handles Binary Data:** Buffers are particularly useful when you need to work with binary data, like reading files from a disk, interacting with streams, or dealing with network communications.
+- **Encoding/Decoding Data:** A Buffer can represent data in various encodings (like UTF-8, ASCII, or Base64) and is capable of converting data to and from these formats.
+
 ## Single Byte
 
 A "single byte" means a unit of digital information composed of 8 bits.
