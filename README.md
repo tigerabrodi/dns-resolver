@@ -233,3 +233,69 @@ A "single byte" means a unit of digital information composed of 8 bits.
 "Hexadecimal" or "hex" is a base-16 number system. Used as a human-friendly way of representing binary data. In hex, each digit can represent 16 different values (0-9 and A-F), where 'A' stands for 10, 'B' for 11, up to 'F' which stands for 15.
 
 In the context of binary data, two hexadecimal digits can represent one byte (8 bits). For example, the byte 10101010 in binary would be AA in hexadecimal.
+
+## DNS Compression
+
+DNS compression is a technique used to reduce the size of DNS messages. It's done because UDP messages have a maximum size limit of 512 bytes. Compression is achieved by replacing repeated domain names with a pointer to the first occurrence of the name.
+
+Domain names are repeated in DNS messages because:
+
+- Multiple Resource Records (RRs) can have the same domain name, e.g. A Record, MX Record, etc.
+- Subdomains are appended to the domain name, e.g. `www.example.com` and `mail.example.com`.
+
+In DNS messages, every part of a domain name (like `www` or `example`) is a label, and each label is stored with a length byte in front of it. This length byte tells us how many characters are in the label. For example, `www` would be stored as `3www`.
+
+However, in the DNS compression scheme, there's a need to distinguish between these regular labels and compression pointers.
+
+This is where the first two bits become important:
+
+- **Regular Label:** For a regular label (like `www`), the first two bits of the length byte are `00`. This means any value from `0` to `63` (since 6 bits remain to represent the length).
+
+- **Compression Pointer:** In a compression pointer, the first two bits of the byte are set to `11`. This is a special flag that tells the DNS parser, "This is not a regular label, but a pointer to somewhere else in the message."
+
+So, when the DNS parser reads a byte and sees `11` at the start, it knows to interpret the next 14 bits as an offset, not as a label or its length.
+
+## Offset
+
+An "offset" in this context is like an index or a specific location in the DNS message.
+
+Imagine a DNS message as a long string of characters, like a line of people holding signs with each letter. Each person represents a byte. The offset is the position in this line where a particular part of the message starts.
+
+Visual representation:
+
+```
+|H|e|a|d|e|r|.|.|.|e|x|a|m|p|l|e|.|c|o|m|.|.|.|w|w|w|.|[pointer]|
+ 0 1 2 3 4 5 6 7   11 12 13 14 15 16 17 18 19 20 21 22    24
+```
+
+- Each letter and symbol is a byte.
+- Suppose `example.com` starts at position 12. So, the offset for `example.com` is `12`.
+- When the DNS message needs to repeat `example.com`, instead of writing it out again, it uses a pointer. The pointer says, "Go to position 12 to find `example.com`."
+
+## Why the next 14 bits?
+
+- A byte is 8 bits. But the first two bits are used to signal that this is a pointer.
+- This leaves 6 bits in the first byte. But 6 bits (which can represent a maximum of 63) aren't enough for a larger DNS message. So, DNS needs more bits to represent the offset.
+- The solution is to use another byte (another 8 bits), making a total of 14 bits for the offset. This allows representing offsets up to 16383, which is much larger than a single byte could allow.
+
+So, when the DNS parser sees `11`, it knows that it's a pointer, and the next 14 bits (6 from the current byte and 8 from the next byte) represent the offset. This design choice is a balance between having a large enough range for offsets and not using too much space for the pointer itself.
+
+## Resource Record
+
+A Resource Record (RR) in DNS is a basic information unit. It's a single entry in the DNS database that provides information about a domain. Each RR has a specific type and contains data relevant to that type.
+
+A Resource Record (RR) in DNS is a basic information unit. It's essentially a single entry in the DNS database that provides information about a domain. Each RR has a specific type and contains data relevant to that type.
+
+- **A Record:** Maps a domain name to an IPv4 address (e.g., `example.com` to `192.0.2.1`).
+- **MX Record:** Specifies the mail server for a domain (for handling email).
+- **CNAME Record:** Provides the canonical name for an alias (like redirecting `www` to the primary domain).
+- **NS Record:** Indicates the authoritative Name Server for the domain.
+- **TXT Record:** Holds text information, often used for various verification methods.
+
+Each RR in a DNS response includes several fields:
+
+- **Name:** The domain name the record is about.
+- **Type:** The type of the RR (A, MX, CNAME, etc.).
+- **Class:** The class of the network (usually IN for internet).
+- **TTL (Time To Live):** How long the record can be cached before needing a refresh.
+- **RDATA:** The data of the record, which varies based on the type (like an IP address for A records).
