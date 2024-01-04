@@ -1,6 +1,5 @@
-import { encodeDomainName } from './encodeDomainName'
-import { generateIdentifier } from './generateIdentifier'
+import { createDNSQuery } from './createDNSQuery'
 
-console.log('16 bit buffer', generateIdentifier())
-
-console.log('encoded youtube >>', encodeDomainName('www.youtube.com'))
+// Usage: Creating a DNS query for 'www.youtube.com'
+const dnsQuery = createDNSQuery('www.youtube.com')
+console.log('DNS Query:', dnsQuery)
