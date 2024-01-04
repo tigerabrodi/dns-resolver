@@ -5,17 +5,13 @@ export function generateIdentifier() {
 }
 
 export function encodeDomainName(domain: string) {
-  // Split the domain name into its labels (parts between the dots)
-  return (
-    domain
-      .split('.')
-      .map((part) => {
-        // For each label, we create a Buffer with its length and concatenate the label itself.
-        // Buffer.from([part.length]) creates a buffer with a single byte representing the length of the label.
-        // This byte is prefixed to the label, thus representing the length-prefix format required by DNS.
-        return `${Buffer.from([part.length])}${part}`
-      })
-      .join('') + '00'
-  ) // Join all the parts together and append '00' at the end
-  // The '00' at the end represents the null byte, which indicates the end of the domain name.
+  const parts = domain.split('.') // Split the domain into its labels
+  const buffers = parts.map((part) => {
+    const length = Buffer.from([part.length]) // Create a buffer for the length
+    const content = Buffer.from(part, 'ascii') // Create a buffer for the label content
+    return Buffer.concat([length, content]) // Combine length and content
+  })
+
+  // Combine all parts and add a null byte at the end to signify the end of the domain name
+  return Buffer.concat([...buffers, Buffer.from([0])])
 }

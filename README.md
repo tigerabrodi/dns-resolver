@@ -217,3 +217,13 @@ A "single byte" means a unit of digital information composed of 8 bits.
 - The length of each domain label (like 'www' or 'google') is converted into a binary format that occupies exactly 8 bits.
 - For instance, if a label is 'www', its length is 3. The binary representation of 3 is `00000011`, which is a single byte.
 - This byte is used in the DNS query to tell the server how many characters the following label has.
+
+## `encodeDomainName('www.youtube.com')` -> `<Buffer 03 77 77 77 07 79 6f 75 74 75 62 65 03 63 6f 6d 00>`
+
+- `03` - The length of the first label "www" (3 characters).
+- `77 77 77` - The ASCII values for the characters 'w', 'w', 'w'.
+- `07` - The length of the second label "youtube" (7 characters).
+- `79 6f 75 74 75 62 65` - The ASCII values for 'y', 'o', 'u', 't', 'u', 'b', 'e'.
+- `03` - The length of the third label "com" (3 characters).
+- `63 6f 6d` - The ASCII values for 'c', 'o', 'm'.
+- `00` - A null byte indicating the end of the domain name.
