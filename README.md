@@ -299,3 +299,14 @@ Each RR in a DNS response includes several fields:
 - **Class:** The class of the network (usually IN for internet).
 - **TTL (Time To Live):** How long the record can be cached before needing a refresh.
 - **RDATA:** The data of the record, which varies based on the type (like an IP address for A records).
+
+## Hex Values in the Context of the DNS Query Code
+
+1. **`0x00` and `0x01`**: These are hex values representing the numbers 0 and 1 in decimal. In binary, `0x00` is `00000000` (8 bits all set to zero), and `0x01` is `00000001` (7 bits set to zero and the last bit set to one). In the DNS query:
+
+   - `0x00` is used to denote the end of a string (null byte) in the domain name.
+   - `0x01` is used to specify the query type (A record) and the query class (IN - Internet).
+
+2. **`0x0100`**: This is a larger hex value that translates to `00000001 00000000` in binary (16 bits). The first `01` represents the byte with its last bit set, and `00` is a byte with all bits unset. In the DNS query, `0x0100` is used as part of the flags field in the DNS message header to indicate a standard query with recursion desired.
+
+   - Here, `0x0100` specifically sets the RD (Recursion Desired) flag in the DNS header. The binary representation spreads across two bytes: the first byte is `00000001` (setting the RD flag), and the second byte is `00000000` (keeping other flags in the first half of the 16-bit flags field unset).
