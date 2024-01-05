@@ -6,7 +6,7 @@ export function createDNSQuery(
   identifier = generateIdentifier()
 ) {
   // DNS Header Parts
-  const flags = Buffer.from([0x01, 0x00]) // Standard query with recursion
+  const flags = Buffer.from([0x00, 0x00]) // No recursion
   const questionCount = Buffer.from([0x00, 0x01]) // One question
   const answerRR = Buffer.from([0x00, 0x00]) // No answer resource records
   const authorityRR = Buffer.from([0x00, 0x00]) // No authority resource records
