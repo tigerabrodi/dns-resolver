@@ -47,7 +47,7 @@ Domain Name System (DNS) is like the phonebook of the internet. Humans access in
 
 ## What is a packet?
 
-A packet in network communication is a small segment of data sent over a digital network. When data is transmitted over the Internet, it is broken down into smaller, more manageable pieces known as packets. Each packet contains not only a portion of the data you're sending (like a piece of an email or a video stream) but also important information about the data.
+A packet in network communication is a small segment of data sent over a digital network. When data is transmitted over the Internet, it is broken down into smaller, more manageable pieces known as packets. Each packet contains not only a portion of the data you're sending but also important information about the data.
 
 ### Components of a Packet:
 
@@ -87,7 +87,7 @@ Imagine sending a long letter to a friend. Instead of sending the whole letter i
 
 ### What is Datagram?
 
-A datagram is a small packet of information sent over a network without confirmation of receipt. It's a concept used in UDP. You can think of it like a postcard sent without any guarantee of delivery - quick but not always reliable.
+A datagram is a small packet of information sent over a network without confirmation of receipt. It's a concept used in UDP. You can think of it like a postcard sent without any guarantee of delivery. Quick but not always reliable.
 
 ## TCP (Transmission Control Protocol)
 
@@ -189,21 +189,11 @@ In traditional decimal numbers, 1 in 1234 is the most significant because it hol
 
 **Why Big Endian for DNS:** DNS protocol, as defined in RFC 1035, specifies the use of big endian (also known as network byte order) for transmitting numbers. This is important for interoperability, ensuring that all systems talking DNS protocol interpret multi-byte numbers in the same way, regardless of their native byte order. It's kind of like reading in english. We read left to right. But in arabic for example, you read right to left.
 
-## Why Buffer.from()?
-
-Using `Buffer.from` is crucial in the `encodeDomainName` function for accurately representing the length of each domain label as a byte, rather than a simple number.
-
-- **Byte Representation:** `Buffer.from([part.length])` creates a buffer containing exactly one byte representing the length of the label. This is a binary representation, not just a numeric value.
-- **DNS Protocol Requirement:** The DNS protocol requires the length of each label to be in the binary format, as part of the query message. Simply using `part.length` would insert a numeric value, which would not conform to the protocol's requirements.
-- **Examples of What Could Go Wrong:**
-  - If you use `part.length` directly, it would be treated as a character in the string, which could lead to incorrect domain name encoding. For example, a label length of 3 would be added as the character '3', not as the binary value 0x03.
-  - This misrepresentation would lead the DNS server to interpret the query incorrectly, potentially failing to resolve the domain name or returning an erroneous response.
-
 ## Buffer
 
 A Buffer in Node.js is a simple way to handle raw binary data. Think of it as a sequence of bytes, much like an array, but with a fixed size and specifically designed for binary data.
 
-### What is a Buffer?
+## What is a Buffer?
 
 - **Fixed-size Chunk of Memory:** A Buffer is essentially a block of memory outside the V8 JavaScript engine's heap. This memory block can store a fixed amount of data in a binary format.
 - **Array of Bytes:** You can think of a Buffer as an array where each element is a byte (8 bits). Unlike JavaScript arrays, which can store different types of elements, a Buffer is dedicated to bytes only.
@@ -259,8 +249,6 @@ So, when the DNS parser reads a byte and sees `11` at the start, it knows to int
 
 An "offset" in this context is like an index or a specific location in the DNS message.
 
-Imagine a DNS message as a long string of characters, like a line of people holding signs with each letter. Each person represents a byte. The offset is the position in this line where a particular part of the message starts.
-
 Visual representation:
 
 ```
@@ -304,7 +292,7 @@ Each RR in a DNS response includes several fields:
 
 1. **`0x00` and `0x01`**: These are hex values representing the numbers 0 and 1 in decimal. In binary, `0x00` is `00000000` (8 bits all set to zero), and `0x01` is `00000001` (7 bits set to zero and the last bit set to one). In the DNS query:
 
-   - `0x00` is used to denote the end of a string (null byte) in the domain name.
+   - `0x00` is used to signal the end of a string (null byte) in the domain name.
    - `0x01` is used to specify the query type (A record) and the query class (IN - Internet).
 
 2. **`0x0100`**: This is a larger hex value that translates to `00000001 00000000` in binary (16 bits). The first `01` represents the byte with its last bit set, and `00` is a byte with all bits unset. In the DNS query, `0x0100` is used as part of the flags field in the DNS message header to indicate a standard query with recursion desired.
@@ -313,7 +301,7 @@ Each RR in a DNS response includes several fields:
 
 ## Masking
 
-Masking in the process of using a bitmask to isolate or alter specific bits in a byte or group of bytes.
+Masking is the process of using a bitmask to isolate or modify specific bits in a byte or group of bytes.
 
 1. **Bitmask**:
 
@@ -324,6 +312,7 @@ Masking in the process of using a bitmask to isolate or alter specific bits in a
 
    - When you apply a bitmask to another binary number, you use bitwise operators (like AND, OR, XOR).
    - The most common operation for masking is the bitwise AND (`&`), which isolates bits.
+   - Read more about bitwise operators on my blog: [Bitwise Operators in C](https://tigerabrodi.hashnode.dev/bitwise-operators-in-c-with-exercise).
 
 3. **Isolating Bits with AND (`&`)**:
    - When a bitmask is ANDed with a number, each bit of the number is compared with the corresponding bit in the mask:
