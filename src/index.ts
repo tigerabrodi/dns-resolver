@@ -1,6 +1,7 @@
 import dgram from 'node:dgram'
 
 import { createDNSQuery } from './createDNSQuery'
+import { parseResponse } from './parseResponse'
 
 // Create a UDP client
 const client = dgram.createSocket('udp4')
@@ -34,7 +35,7 @@ client.on('message', (msg, info) => {
     info.port
   )
 
-  // TODO: Parse the response
+  console.log('THIS IS THE RESPONSE', parseResponse(msg))
 
   client.close()
 })
