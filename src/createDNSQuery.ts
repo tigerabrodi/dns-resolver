@@ -5,7 +5,7 @@ export function createDNSQuery(
   domain: string,
   identifier = generateIdentifier()
 ) {
-  // Set flags - 0x0100 for standard query with recursion
+  // Set flags: 0x0100 for standard query with recursion
   const flags = Buffer.from([0x01, 0x00])
 
   // Encode the domain name
@@ -15,7 +15,7 @@ export function createDNSQuery(
   const type = Buffer.from([0x00, 0x01])
   const classBuffer = Buffer.from([0x00, 0x01])
 
-  // Assemble the question count, answer RR, authority RR, and additional RR (all zero except question count)
+  // Assemble the question count, answer RR, authority RR, and additional RR (all zero except question count), because we're only asking a question, not answering it
   const questionCount = Buffer.from([0x00, 0x01])
   const answerRR = Buffer.from([0x00, 0x00])
   const authorityRR = Buffer.from([0x00, 0x00])
