@@ -9,24 +9,23 @@ const client = dgram.createSocket('udp4')
 const YOUTUBE_DOMAIN = 'www.youtube.com'
 const dnsQuery = createDNSQuery(YOUTUBE_DOMAIN)
 
-const GOOGLE_PUBLIC_DNS_SERVER = '8.8.8.8'
-const GOOGLE_DNS_PORT = 53
+// Root DNS server details
+const ROOT_DNS_SERVER = '198.41.0.4' // A root name server
+const DNS_PORT = 53
 
 // Send the DNS query
-client.send(dnsQuery, GOOGLE_DNS_PORT, GOOGLE_PUBLIC_DNS_SERVER, (error) => {
+client.send(dnsQuery, DNS_PORT, ROOT_DNS_SERVER, (error) => {
   if (error) {
     client.close()
     throw error
   }
-  console.log(
-    `DNS Query sent to ${GOOGLE_PUBLIC_DNS_SERVER}:${GOOGLE_DNS_PORT}`
-  )
+  console.log(`DNS Query sent to ${ROOT_DNS_SERVER}:${DNS_PORT}`)
 })
 
 // Handle the response
 client.on('message', (msg, info) => {
   console.log('Received response from DNS server:\n')
-  console.log('Message:', msg.toString('hex')) // Hexadecimal representation of the message, more human friendly than binary
+  console.log('Message:', msg.toString('hex')) // Hexadecimal representation of the message
   console.log('Info:', info)
   console.log(
     'Received %d bytes from %s:%d\n',
