@@ -183,11 +183,11 @@ In the DNS header, the "Recursion Desired" flag, when set to 1, tells the DNS se
 
 Think of big endian as writing a date in the format Year-Month-Day. No matter where you start reading (from the left), you get the most significant part first (the year).
 
-The "lower address" in memory is like the beginning of a line. In big endian, you start with the most significant part of your data at this beginning.
+In traditional decimal numbers, 1 in 1234 is the most significant because it holds the highest value (1000). Similarly, in binary or hexadecimal numbers, the byte or digit farthest to the left holds the highest value.
 
 **Big Endian:** The most significant byte (the "big end") of the data is placed at the byte with the lowest address. For example, for the number 0x1234, 0x12 is stored first.
 
-**Why Big Endian for DNS:** DNS protocol, as defined in RFC 1035, specifies the use of big endian (also known as network byte order) for transmitting numbers. This is important for interoperability, ensuring that all systems talking DNS protocol interpret multi-byte numbers in the same way, regardless of their native byte order.
+**Why Big Endian for DNS:** DNS protocol, as defined in RFC 1035, specifies the use of big endian (also known as network byte order) for transmitting numbers. This is important for interoperability, ensuring that all systems talking DNS protocol interpret multi-byte numbers in the same way, regardless of their native byte order. It's kind of like reading in english. We read left to right. But in arabic for example, you read right to left.
 
 ## Why Buffer.from()?
 
