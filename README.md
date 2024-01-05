@@ -133,45 +133,67 @@ A datagram is a small packet of information sent over a network without confirma
 
 ## DNS Message Format
 
-DNS messages are used for querying DNS servers to translate domain names (like `www.example.com`) into IP addresses (like `192.0.2.1`) and vice versa. A DNS message has several components:
+### Query (Question)
 
-### 1. Header
+#### Human-Readable Format:
 
-- **Identification:** A unique ID for the DNS request. It's like a tracking number for your query.
-- **Flags:** These indicate the type of query, whether it's a standard query, a response, or an error message. They also include other settings.
-- **Question Count:** The number of questions in the DNS request.
-- **Answer Count:** The number of answers in the DNS response.
-- **Authority Count:** The number of authority records (provides information about DNS servers authoritative for a zone).
-- **Additional Count:** The number of additional records.
+1. **Transaction ID**: A unique identifier for the query.
+2. **Flags**: Control flags (e.g., recursion desired).
+3. **Questions Count**: Number of questions in the query.
+4. **Answer RRs**: Number of answer resource records (0 in a query).
+5. **Authority RRs**: Number of authority resource records (0 in a query).
+6. **Additional RRs**: Number of additional resource records (0 in a query).
+7. **Query**: The actual question, including:
+   - **Domain Name**: The name being queried (e.g., "www.example.com").
+   - **Type**: Type of the query (e.g., A, AAAA, NS).
+   - **Class**: Class of the query (usually IN for internet).
 
-### 2. Question Section
+#### Technical Format:
 
-- **Name:** The domain name you're querying about, like `www.example.com`.
-- **Type:** The type of query (e.g., A for IP address, MX for mail exchange server).
-- **Class:** This is usually IN (Internet), indicating it's an Internet query.
+1. **Transaction ID**: 2 bytes
+2. **Flags**: 2 bytes (including QR bit set to 0 indicating query)
+3. **Questions Count**: 2 bytes
+4. **Answer RRs**: 2 bytes (0x0000 for query)
+5. **Authority RRs**: 2 bytes (0x0000 for query)
+6. **Additional RRs**: 2 bytes (0x0000 for query)
+7. **Query Section**: Variable length
+   - **Domain Name**: Label format (length byte + label)
+   - **Type**: 2 bytes (e.g., 0x0001 for A record)
+   - **Class**: 2 bytes (0x0001 for IN)
 
-### 3. Answer Section
+### Response (Answer)
 
-- **Name:** The domain name the answer is referring to.
-- **Type:** The type of the answer record (e.g., A, MX).
-- **Class:** Similar to the question section, usually IN.
-- **TTL (Time to Live):** How long the answer can be cached before a new request should be made.
-- **Data Length:** The length of the answer data.
-- **Data:** The actual data, like the IP address for the domain.
+#### Human-Readable Format:
 
-### 4. Authority Section
+1. **Transaction ID**: Matches the ID in the query.
+2. **Flags**: Control flags (e.g., query/response flag, authoritative answer).
+3. **Questions Count**: Number of questions (usually 1).
+4. **Answer RRs**: Number of answer resource records.
+5. **Authority RRs**: Number of authority resource records.
+6. **Additional RRs**: Number of additional resource records.
+7. **Answers**: The resource records answering the query, including:
+   - **Domain Name**: The name being responded to.
+   - **Type**: Type of the answer (e.g., A, AAAA, NS).
+   - **Class**: Class of the answer (usually IN).
+   - **TTL**: Time to live.
+   - **Data Length**: Length of the RDATA field.
+   - **RDATA**: Resource data (e.g., IP address).
 
-- Contains authoritative name server records. It tells you which DNS server has the authoritative (final) answer to your query.
+#### Technical Format:
 
-### 5. Additional Section
-
-- Contains additional information, like alternative servers or services related to the query.
-
-### How Does It Work?
-
-1. **You ask:** "What's the IP address for `www.example.com`?"
-2. **DNS Query is Sent:** Your computer sends a DNS query with this question.
-3. **DNS Response:** A DNS server responds with an answer, like "The IP address for `www.example.com` is 192.0.2.1".
+1. **Transaction ID**: 2 bytes
+2. **Flags**: 2 bytes (including QR bit set to 1 indicating response)
+3. **Questions Count**: 2 bytes
+4. **Answer RRs**: 2 bytes
+5. **Authority RRs**: 2 bytes
+6. **Additional RRs**: 2 bytes
+7. **Resource Records Section**: Variable length
+   - **Domain Name**: Label format or pointer
+   - **Type**: 2 bytes
+   - **Class**: 2 bytes
+   - **TTL**: 4 bytes
+   - **Data Length**: 2 bytes
+   - **RDATA**: Variable length based on type
 
 ## The "Recursion Desired" Flag
 
@@ -318,3 +340,5 @@ Masking is the process of using a bitmask to isolate or modify specific bits in 
    - When a bitmask is ANDed with a number, each bit of the number is compared with the corresponding bit in the mask:
      - If the mask bit is `1`, the original bit is kept.
      - If the mask bit is `0`, the original bit is cleared (set to `0`).
+
+##
