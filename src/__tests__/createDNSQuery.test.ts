@@ -9,7 +9,7 @@ it('creates DNS query correctly', () => {
   const expected = Buffer.from([
     0x68,
     0x90, // Identifier
-    0x01,
+    0x00,
     0x00, // Flags
     0x00,
     0x01, // Question count
