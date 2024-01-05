@@ -310,3 +310,22 @@ Each RR in a DNS response includes several fields:
 2. **`0x0100`**: This is a larger hex value that translates to `00000001 00000000` in binary (16 bits). The first `01` represents the byte with its last bit set, and `00` is a byte with all bits unset. In the DNS query, `0x0100` is used as part of the flags field in the DNS message header to indicate a standard query with recursion desired.
 
    - Here, `0x0100` specifically sets the RD (Recursion Desired) flag in the DNS header. The binary representation spreads across two bytes: the first byte is `00000001` (setting the RD flag), and the second byte is `00000000` (keeping other flags in the first half of the 16-bit flags field unset).
+
+## Masking
+
+Masking in the process of using a bitmask to isolate or alter specific bits in a byte or group of bytes.
+
+1. **Bitmask**:
+
+   - A bitmask is a binary number where specific bits are set to `1` or `0`.
+   - The bits set to `1` in the mask are the ones you're interested in, while the bits set to `0` are those you want to ignore or clear.
+
+2. **Applying the Mask**:
+
+   - When you apply a bitmask to another binary number, you use bitwise operators (like AND, OR, XOR).
+   - The most common operation for masking is the bitwise AND (`&`), which isolates bits.
+
+3. **Isolating Bits with AND (`&`)**:
+   - When a bitmask is ANDed with a number, each bit of the number is compared with the corresponding bit in the mask:
+     - If the mask bit is `1`, the original bit is kept.
+     - If the mask bit is `0`, the original bit is cleared (set to `0`).
