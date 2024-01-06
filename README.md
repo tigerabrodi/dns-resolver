@@ -2,9 +2,21 @@
 
 Basic DNS Resolver from scratch. The current code resolves Google's domain.
 
+## How to try it
+
+Clone it.
+
+Run `npm install`.
+
+Now run `npm run start`.
+
+This is what you should see.
+
+![Screenshot 2024-01-06 at 15 40 05](https://github.com/narutosstudent/dns-resolver/assets/49603590/7b4445bd-8916-4bd4-9e11-a019747215d9)
+
 ## TODO
 
-CNAME records (Canonical Name records), not handled yet. I might get around to it later. This will require a recursive query similar to how we deal with NS Records. CNAME records are used in DNS to create an alias from one domain name to another. This is useful for scenarios like hosting multiple services (like mail, FTP, etc.) on a single IP address, where each service can have its own entry in DNS, and all of them point to the same IP address using CNAME records. 
+CNAME records (Canonical Name records), not handled yet. I might get around to it later. **This will require a recursive query similar to how we deal with NS Records.** CNAME records are used in DNS to create an alias from one domain name to another. This is useful for scenarios like hosting multiple services (like mail, FTP, etc.) on a single IP address, where each service can have its own entry in DNS, and all of them point to the same IP address using CNAME records.
 
 - [ ] CNAME Records
 
