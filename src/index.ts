@@ -18,13 +18,8 @@ export const AAAA_RECORD_TYPE = 28
 export const NS_RECORD_TYPE = 2
 const DOMAIN_TO_RESOLVE = 'www.google.com'
 
-function queryDNS(domain: string, server: string, isInitialQuery = false) {
-  console.log(`Querying ${server} for ${domain}`)
-  console.log('-----------------------------------', isInitialQuery)
-
-  // Determine if the server address is IPv4 or IPv6
+function queryDNS(domain: string, server: string) {
   const ipVersion = net.isIP(server)
-  console.log('ipVersion', ipVersion)
   const socketType = ipVersion === 6 ? 'udp6' : 'udp4'
 
   // Create a new socket for this query
@@ -59,28 +54,26 @@ function queryDNS(domain: string, server: string, isInitialQuery = false) {
 }
 
 function processDNSResponse(response: ReturnType<typeof parseResponse>) {
-  response.authorityRecords
-    .filter((rec) => rec.type === NS_RECORD_TYPE)
-    .forEach((nsRecord) => {
-      const nsIP = response.additionalRecords.find(
-        (rec) => rec.domainName === nsRecord.rdata
-      )?.rdata
+  const nsRecords = response.authorityRecords.filter(
+    (rec) => rec.type === NS_RECORD_TYPE
+  )
 
-      console.log('nsIP', nsIP)
+  if (nsRecords.length > 0) {
+    // Select the first NS record
+    const nsRecord = nsRecords[0] as DNSRecord // one NS Record is sufficient to get the IP of the domain, this way we do less queries
+    const nsIP = response.additionalRecords.find(
+      (rec) => rec.domainName === nsRecord.rdata
+    )?.rdata
 
-      if (nsIP) {
-        queryDNS(DOMAIN_TO_RESOLVE, nsIP) // Replace with the domain you are resolving
-      }
-    })
-
-  if (response.authorityRecords.length === 0) {
-    response.answerRecords
-      .filter(
-        (rec) => rec.type === A_RECORD_TYPE || rec.type === AAAA_RECORD_TYPE
-      )
-      .forEach((record) => console.log(`IP Address found: ${record.rdata}`))
+    if (nsIP) {
+      queryDNS(DOMAIN_TO_RESOLVE, nsIP)
+    }
+  } else {
+    // Process A or AAAA records
+    const answerRecord = response.answerRecords[0] as DNSRecord
+    console.log('IP Address found: ', answerRecord.rdata)
   }
 }
 
 // Initial Query
-queryDNS(DOMAIN_TO_RESOLVE, ROOT_DNS_SERVER, true)
+queryDNS(DOMAIN_TO_RESOLVE, ROOT_DNS_SERVER)

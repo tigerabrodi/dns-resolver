@@ -94,8 +94,6 @@ function parseRecord(buffer: Buffer, offset: number): DNSRecord {
   const dataLength = buffer.readUInt16BE(offset)
   offset += 2 // Move past the data length field
 
-  const rdataBuffer = buffer.slice(offset, offset + dataLength)
-
   let rdata: string
 
   if (type === NS_RECORD_TYPE) {
@@ -103,6 +101,8 @@ function parseRecord(buffer: Buffer, offset: number): DNSRecord {
     offset = newOffset
     rdata = domainName
   } else {
+    const rdataBuffer = buffer.slice(offset, offset + dataLength)
+
     rdata = interpretRDataARecord({
       rdata: rdataBuffer,
       type,
