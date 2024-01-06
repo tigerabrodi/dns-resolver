@@ -9,7 +9,7 @@ it('should parse domain name correctly', () => {
   ])
   const offset = 0 // Starting at the beginning of the buffer
 
-  const expected = { name: 'www.youtube.com.', offset: 17 } // The expected result
+  const expected = { domainName: 'www.youtube.com.', newOffset: 17 } // The expected result
 
   expect(parseDomainName(buffer, offset)).toEqual(expected)
 })
