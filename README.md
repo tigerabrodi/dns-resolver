@@ -1,5 +1,39 @@
 # DNS Resolver from scratch
 
+# Debugging stories
+
+## offset of NS Record is wrong
+
+- is too large
+- buffer of test was 58 bytes long, seeing in the debugger Buffer size, I knew it wasn't 64 as calculcated
+- because we handled NS record offset the same as the A records
+- using the debugger, stepping through, figured out that when parsing domain name of NS record, the offset returned from that is the right one, 58
+
+## UDP4 sockets returning error for IpV6 address
+
+- udp4 sockets only work for IpV4 addresses
+- we need to use udp6 sockets for IpV6 addresses
+
+```
+Error: Error: send EINVAL 2001:4860:4802:34:0:0:0:a:53
+    at doSend (node:dgram:717:16)
+    at defaultTriggerAsyncIdScope (node:internal/async_hooks:464:18)
+    at afterDns (node:dgram:663:5)
+    at processTicksAndRejections (node:internal/process/task_queues:83:21) {
+  errno: -22,
+  code: 'EINVAL',
+  syscall: 'send',
+  address: '2001:4860:4802:34:0:0:0:a',
+  port: 53
+}
+```
+
+`EINVAL` is an error code for invalid argument
+
+So we're sending an invalid argument to the `send` function.
+
+And it only happened when we were sending to an IpV6 address. Because we need to use udp6 sockets for IpV6 addresses.
+
 # What is DNS?
 
 Domain Name System (DNS) is like the phonebook of the internet. Humans access information online through domain names, like nytimes.com or espn.com. Web browsers interact through Internet Protocol (IP) addresses. DNS translates domain names to IP addresses so browsers can load Internet resources.
