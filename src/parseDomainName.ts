@@ -26,7 +26,10 @@ export function parseDomainName(buffer: Buffer, offset: number) {
   }
 
   // If we encountered a pointer, it means `offset` jumped elsewhere. `originalOffset` is the position right after the pointer, where we want to continue parsing. Don't get this wrong, it's not the pointer itself or the position the pointer points to, but the position right after the pointer.
-  return { name, offset: hasEncounteredPointer ? originalOffset : offset }
+  return {
+    domainName: name,
+    newOffset: hasEncounteredPointer ? originalOffset : offset,
+  }
 }
 
 function isEndOfName(lengthByte: number) {
