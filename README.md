@@ -1,18 +1,39 @@
 # DNS Resolver from scratch
 
+Basic DNS Resolver from scratch. The current code resolves Google's domain.
+
+## TODO
+
+CNAME records (Canonical Name records), not handled yet. I might get around to it later. This will require a recursive query similar to how we deal with NS Records. CNAME records are used in DNS to create an alias from one domain name to another. This is useful for scenarios like hosting multiple services (like mail, FTP, etc.) on a single IP address, where each service can have its own entry in DNS, and all of them point to the same IP address using CNAME records. 
+
+- [ ] CNAME Records
+
+## Flowchart
+
+I was thinking of doing a flowchart, but I think this video from [ByteByteGo](https://www.youtube.com/watch?v=27r4Bzuj5NQ) explains everything amazingly.
+
 # Debugging stories
 
 ## offset of NS Record is wrong
 
-- is too large
-- buffer of test was 58 bytes long, seeing in the debugger Buffer size, I knew it wasn't 64 as calculcated
-- because we handled NS record offset the same as the A records
-- using the debugger, stepping through, figured out that when parsing domain name of NS record, the offset returned from that is the right one, 58
+How we deal with parsing NS Record types is different. I handled most of it but got stuck around the offset value. The offset I initially had was too large, It was 64 despite the buffer having a size of 58.
 
-## UDP4 sockets returning error for IpV6 address
+At first, I was a bit confused because the number was close. Maybe I'm on the right track lol? And the way I dealt with getting the name and type for NS Record was right too.
 
-- udp4 sockets only work for IpV4 addresses
-- we need to use udp6 sockets for IpV6 addresses
+I added a failing test. The good part was I knew the Buffer size, so the offset should end there (58).
+
+I ran the test with JS debug terminal in VS code. Set a breakpoint. Stepped through it.
+
+After a while I discovered where we parse the domain name, we return the correct offset!!
+
+It all clicked. How we deal with A Records' offsets we can't do with NS Records. For A records, we add the data length `offset += dataLength`. The data here however is the IP address, and not a new domain to query.
+
+![Screenshot 2024-01-06 at 08 24 11](https://github.com/narutosstudent/dns-resolver/assets/49603590/1117ccf6-481b-4cd0-9bca-d3ec27758a7d)
+
+
+## Udp4 sockets returning error for IpV6 address
+
+I ran into this error when doing recursive queries. It only happened for IPv6 addresses, e.g. `2001:4860:4802:34:0:0:0:a:53`.
 
 ```
 Error: Error: send EINVAL 2001:4860:4802:34:0:0:0:a:53
@@ -30,9 +51,9 @@ Error: Error: send EINVAL 2001:4860:4802:34:0:0:0:a:53
 
 `EINVAL` is an error code for invalid argument
 
-So we're sending an invalid argument to the `send` function.
+So we're sending an invalid argument using `send`.
 
-And it only happened when we were sending to an IpV6 address. Because we need to use udp6 sockets for IpV6 addresses.
+The problem was I was using Udp4 sockets for IPv6 addresses, which doesn't work. We have to use Udp6 addresses.
 
 # What is DNS?
 
