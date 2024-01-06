@@ -1,14 +1,26 @@
-const A_RECORD_TYPE = 1
-const AAAA_RECORD_TYPE = 28
+import type { NS_RECORD_TYPE } from '.'
 
-export function interpretRData(rdata: Buffer, type: number) {
+import { AAAA_RECORD_TYPE, A_RECORD_TYPE } from '.'
+
+export type DNSType =
+  | typeof A_RECORD_TYPE
+  | typeof AAAA_RECORD_TYPE
+  | typeof NS_RECORD_TYPE
+
+export function interpretRDataARecord({
+  rdata,
+  type,
+}: {
+  rdata: Buffer
+  type: Exclude<DNSType, typeof NS_RECORD_TYPE>
+}) {
   switch (type) {
     case A_RECORD_TYPE:
-      return interpretIPv4Address(rdata) // IPv4 address, 32 bits or 4 bytes, e.g. `192.168.1.1`
+      return interpretIPv4Address(rdata)
     case AAAA_RECORD_TYPE:
-      return interpretIPv6Address(rdata) // IPv6 address, 128 bits or 16 bytes, e.g. `2001:0db8:85a3:0000:0000:8a2e:0370:7334`
+      return interpretIPv6Address(rdata)
+
     default:
-      // For other types, return the data as a hexadecimal string.
       return rdata.toString('hex')
   }
 }

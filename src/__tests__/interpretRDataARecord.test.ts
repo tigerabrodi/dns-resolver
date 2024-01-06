@@ -1,6 +1,6 @@
 import { expect, it } from 'vitest'
 
-import { interpretRData } from '../interpretRData'
+import { interpretRDataARecord } from '../interpretRDataARecord'
 
 it('should interpret rdata for type 1, A records', () => {
   const rdata = Buffer.from([192, 168, 1, 1]) // Sample IPv4 address in buffer format
@@ -8,7 +8,12 @@ it('should interpret rdata for type 1, A records', () => {
 
   const expected = '192.168.1.1' // Expected IPv4 address
 
-  expect(interpretRData(rdata, type)).toBe(expected)
+  expect(
+    interpretRDataARecord({
+      rdata,
+      type,
+    })
+  ).toBe(expected)
 })
 
 it('should interpret rdata for type 28, AAAA records', () => {
@@ -20,5 +25,10 @@ it('should interpret rdata for type 28, AAAA records', () => {
   // Expected IPv6 address in unshortened format
   const expected = '2001:db8:0:800:0:0:0:1'
 
-  expect(interpretRData(rdata, type)).toBe(expected)
+  expect(
+    interpretRDataARecord({
+      rdata,
+      type,
+    })
+  ).toBe(expected)
 })
