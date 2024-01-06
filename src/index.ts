@@ -3,49 +3,97 @@ import dgram from 'node:dgram'
 import { createDNSQuery } from './createDNSQuery'
 import { parseResponse } from './parseResponse'
 
-// Create a UDP client
+export interface DNSRecord {
+  domainName: string
+  type: number
+  rdata: string
+  offset: number
+}
+
 const client = dgram.createSocket('udp4')
-
-const YOUTUBE_DOMAIN = 'www.youtube.com'
-const dnsQuery = createDNSQuery(YOUTUBE_DOMAIN)
-
-// Root DNS server details
-const ROOT_DNS_SERVER = '198.41.0.4' // A root name server
+const ROOT_DNS_SERVER = '198.41.0.4'
 const DNS_PORT = 53
+export const A_RECORD_TYPE = 1
+export const AAAA_RECORD_TYPE = 28
+export const NS_RECORD_TYPE = 2
 
-// Send the DNS query
-client.send(dnsQuery, DNS_PORT, ROOT_DNS_SERVER, (error) => {
-  if (error) {
-    client.close()
-    throw error
-  }
-  console.log(`DNS Query sent to ${ROOT_DNS_SERVER}:${DNS_PORT}`)
+function queryDNS(domain: string, server: string) {
+  const dnsQuery = createDNSQuery(domain)
+  client.send(dnsQuery, DNS_PORT, server, handleError)
+}
+
+client.on('message', (message) => {
+  handleDNSResponse(message)
 })
 
-// Handle the response
-client.on('message', (msg, info) => {
-  console.log('Received response from DNS server:\n')
-  console.log('Message:', msg.toString('hex')) // Hexadecimal representation of the message
-  console.log('Info:', info)
-  console.log(
-    'Received %d bytes from %s:%d\n',
-    msg.length,
-    info.address,
-    info.port
+function handleDNSResponse(message: Buffer) {
+  const response = parseResponse(message)
+  processDNSResponse(response)
+}
+
+function processDNSResponse(response: ReturnType<typeof parseResponse>) {
+  const nsRecords = findNSRecords(response.authorityRecords)
+
+  if (nsRecords.length > 0) {
+    queryNameServers(nsRecords, response.additionalRecords)
+  } else {
+    logFinalIPAddresses(response.answerRecords)
+  }
+}
+
+function findNSRecords(authorityRecords: Array<DNSRecord>) {
+  return authorityRecords.filter((rec) => rec.type === NS_RECORD_TYPE)
+}
+
+function queryNameServers(
+  nsRecords: Array<DNSRecord>,
+  additionalRecords: Array<DNSRecord>
+) {
+  nsRecords.forEach((nsRecord) => {
+    const nsIP = findNSIPAddress(nsRecord.rdata, additionalRecords)
+    if (nsIP) {
+      queryDNS('www.google.com', nsIP) // Replace with the domain you are resolving
+    }
+  })
+}
+
+function findNSIPAddress(
+  nsDomainName: string,
+  additionalRecords: Array<DNSRecord>
+) {
+  const record = additionalRecords.find(
+    (rec) => rec.domainName === nsDomainName
   )
 
-  console.log('THIS IS THE RESPONSE', parseResponse(msg))
+  return record ? record.rdata : null
+}
 
+function logFinalIPAddresses(answerRecords: Array<DNSRecord>) {
+  answerRecords.forEach((record) => {
+    if (record.type === A_RECORD_TYPE || record.type === AAAA_RECORD_TYPE) {
+      console.log(`IP Address found: ${record.rdata}`)
+    }
+  })
   client.close()
-})
+}
 
-// TODO: Handle errors
+function handleError(error: Error | null) {
+  if (error) {
+    console.error('Error:', error)
+    client.close()
+  } else {
+    console.log(`DNS Query sent to ${ROOT_DNS_SERVER}:${DNS_PORT}`)
+  }
+}
+
+// Initial Query
+queryDNS('www.google.com', ROOT_DNS_SERVER)
+
 client.on('error', (err) => {
   console.log(`Client error: ${err.message}`)
   client.close()
 })
 
-// TODO: handle timeout if the server doesn't respond
 client.on('timeout', () => {
   console.log('Request timed out')
   client.close()
