@@ -20,9 +20,11 @@ const DOMAIN_TO_RESOLVE = 'www.google.com'
 
 function queryDNS(domain: string, server: string) {
   const ipVersion = net.isIP(server)
+
+  // udp4 or udp6 depending on the IP version of the DNS server
+  // udp4 for IPv6 will throw EINVAL (invalid argument) exception
   const socketType = ipVersion === 6 ? 'udp6' : 'udp4'
 
-  // Create a new socket for this query
   const client = dgram.createSocket(socketType)
 
   const dnsQuery = createDNSQuery(domain)
@@ -39,7 +41,9 @@ function queryDNS(domain: string, server: string) {
   client.on('message', (message) => {
     const response = parseResponse(message)
     processDNSResponse(response)
-    client.close() // Close the socket after processing the response
+
+    // Close the socket after processing the response
+    client.close()
   })
 
   client.on('error', (err) => {
