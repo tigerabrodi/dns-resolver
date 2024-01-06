@@ -10,9 +10,13 @@ Run `npm install`.
 
 Now run `npm run start`.
 
-This is what you should see.
+This is what you should see. It's resolving Google's domain.
 
 ![Screenshot 2024-01-06 at 15 40 05](https://github.com/narutosstudent/dns-resolver/assets/49603590/7b4445bd-8916-4bd4-9e11-a019747215d9)
+
+If you encounter issues, feel free to raise them.
+
+Contributions are open! 💞
 
 ## TODO
 
